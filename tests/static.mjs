@@ -3,9 +3,11 @@ const html=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8
 const js=fs.readFileSync(new URL("../public/js/app.js",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../functions/api/[[path]].js",import.meta.url),"utf8");
 assert.match(html,/CANTIN NOVA 2\.0/);
-assert.equal((html.match(/class="nav/g)||[]).length,8);
-for(const x of ["dashboard","sales","debts","warehouse","cashflow","reports","catalog","more"])assert.match(html,new RegExp(`data-page="${x}"`));
-for(const x of ["exportStore","exportExcel","exportZip","importStore","addCashEntry","closeCashSession"])assert.match(js,new RegExp(x));
-for(const x of ["sale.create","debt.backup.import","stockin.create","cash.entry.create","supplier.create","supplier.pay","cash.session.close"])assert.match(api,new RegExp(`case "${x.replaceAll('.', '\\.')}"`));
-assert.match(api,/version:"2\.0\.0"/);assert.match(api,/cashEntries/);assert.match(api,/supplierDebts/);
-console.log("PASS Cantin Nova 2.0 static");
+assert.equal((html.match(/class="nav/g)||[]).length,6);
+for(const x of ["dashboard","sales","debts","warehouse","cashflow","catalog","more"])assert.match(html,new RegExp(`data-page="${x}"`));
+assert.doesNotMatch(html,/data-page="reports"/);
+for(const x of ["debtSort","debtStatus","debtFrom","debtTo","clearDebtFilters"])assert.match(html,new RegExp(x));
+for(const x of ["exportStore","exportExcel","exportZip","importStore","addCashEntry","closeCashSession","showEditDebt","showEditDebtPayment"])assert.match(js,new RegExp(x));
+for(const x of ["sale.create","debt.update","debt.payment.update","debt.payment.delete","stockin.create","cash.entry.create","supplier.create","supplier.pay","cash.session.close"])assert.match(api,new RegExp(`case "${x.replaceAll('.', '\\.')}`));
+assert.match(api,/rebuildDebtCashEntries/);assert.match(api,/version:"2\.0\.0"/);assert.match(api,/cashEntries/);assert.match(api,/supplierDebts/);
+console.log("PASS Cantin Nova 2.0 static - simplified nav + debt filters/editing");

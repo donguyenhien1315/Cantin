@@ -39,3 +39,12 @@ Dữ liệu cũ được chuẩn hóa khi đọc để bổ sung các collection
 ## Đưa lên GitHub
 
 Giải nén ZIP, sau đó upload toàn bộ **nội dung bên trong thư mục** lên root repository để các thư mục `public`, `functions`, `tests` và file `README.md` nằm ngay cấp đầu tiên.
+
+
+## Cập nhật giao diện công nợ
+- Thanh điều hướng dưới rút còn 6 mục: Tổng quan, Bán hàng, Công nợ, Kho, Thu chi, Khác.
+- Bỏ màn hình Hiệu quả kinh doanh và chỉ giữ trọng tâm Thu / Chi.
+- Mặt hàng chuyển vào mục Khác.
+- Công nợ có lọc A-Z/Z-A, Tất cả/Còn nợ/Đã trả và khoảng ngày.
+- Có thể sửa ngày, số tiền, ghi chú của khoản nợ thủ công; khoản nợ từ đơn bán hàng cho sửa ngày/ghi chú nhưng khóa số tiền để không lệch đơn.
+- Có thể sửa hoặc xóa từng lần trả nợ; sổ Thu / Chi được đồng bộ lại theo lịch sử trả nợ.

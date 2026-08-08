@@ -232,6 +232,15 @@ function addCashEntry(st,{type="expense",category="Khác",amount=0,paymentMethod
   const e={id:uid(),type:type==="income"?"income":"expense",category:String(category||"Khác"),amount,paymentMethod:String(paymentMethod||"cash"),note:String(note||""),createdAt,source,sourceId};
   st.cashEntries.push(e);return e
 }
+function rebuildDebtCashEntries(st){
+  const old=(st.cashEntries||[]).filter(e=>e.source==="debt_payment"),methodByKey=new Map();
+  for(const e of old)methodByKey.set(`${e.note||""}|${e.createdAt||""}`,e.paymentMethod||"cash");
+  st.cashEntries=(st.cashEntries||[]).filter(e=>e.source!=="debt_payment");
+  for(const d of st.debts||[]){for(const pay of d.payments||[]){
+    const paymentMethod=pay.paymentMethod||methodByKey.get(`${d.customer||""}|${pay.createdAt||""}`)||"cash";pay.paymentMethod=paymentMethod;
+    addCashEntry(st,{type:"income",category:"Thu nợ",amount:pay.amount,paymentMethod,note:d.customer||"Khách",createdAt:pay.createdAt,source:"debt_payment",sourceId:`${d.id}:${pay.id}`});
+  }}
+}
 function supplierBalance(st,id){return (st.supplierDebts||[]).filter(d=>d.supplierId===id).reduce((a,d)=>a+(+d.balance||0),0)}
 function normalizePayments(total,p){
   let cash=money(p?.cash),transfer=money(p?.transfer),debt=money(p?.debt),sum=cash+transfer+debt;
@@ -301,14 +310,13 @@ function applyAction(root,action,p){
       st.debts.push({id:uid(),customerId:c.id,customer:c.name,amount,paid:0,balance:amount,note:String(p.note||""),createdAt:p.createdAt||now(),payments:[]});
       tx(st,action,`Ghi nợ ${c.name}: ${formatMoney(amount)}`);break;
     }
-    case "debt.pay": {const c=st.customers.find(c=>c.id===p.customerId);if(!c)bad("Không tìm thấy khách");const amount=Math.min(money(p.amount),customerDebt(st,c.id));if(!amount)bad("Không có số nợ để trừ");const createdAt=p.createdAt||now();payDebt(st,c.id,amount,p.note||"",createdAt);addCashEntry(st,{type:"income",category:"Thu nợ",amount,paymentMethod:p.paymentMethod||"cash",note:c.name,createdAt,source:"debt_payment"});tx(st,p.source==="ai"?"ai.debt.payment":action,`${c.name} trả ${formatMoney(amount)}`);break;}
-    case "debt.pay.selected": {const createdAt=p.createdAt||now(),total=paySelectedDebts(st,p.customerId,p.allocations,p.note||"",createdAt),c=st.customers.find(x=>x.id===p.customerId);addCashEntry(st,{type:"income",category:"Thu nợ",amount:total,paymentMethod:p.paymentMethod||"cash",note:c?.name||"Khách",createdAt,source:"debt_payment"});tx(st,p.source==="ai"?"ai.debt.payment":action,`${c?.name||"Khách"} trả ${formatMoney(total)} theo khoản đã chọn`);break;}
+    case "debt.pay": {const c=st.customers.find(c=>c.id===p.customerId);if(!c)bad("Không tìm thấy khách");const amount=Math.min(money(p.amount),customerDebt(st,c.id));if(!amount)bad("Không có số nợ để trừ");const createdAt=p.createdAt||now();payDebt(st,c.id,amount,p.note||"",createdAt);addCashEntry(st,{type:"income",category:"Thu nợ",amount,paymentMethod:p.paymentMethod||"cash",note:c.name,createdAt,source:"debt_payment"});rebuildDebtCashEntries(st);tx(st,p.source==="ai"?"ai.debt.payment":action,`${c.name} trả ${formatMoney(amount)}`);break;}
+    case "debt.pay.selected": {const createdAt=p.createdAt||now(),total=paySelectedDebts(st,p.customerId,p.allocations,p.note||"",createdAt),c=st.customers.find(x=>x.id===p.customerId);addCashEntry(st,{type:"income",category:"Thu nợ",amount:total,paymentMethod:p.paymentMethod||"cash",note:c?.name||"Khách",createdAt,source:"debt_payment"});rebuildDebtCashEntries(st);tx(st,p.source==="ai"?"ai.debt.payment":action,`${c?.name||"Khách"} trả ${formatMoney(total)} theo khoản đã chọn`);break;}
     case "debt.update": {
       const d=st.debts.find(d=>d.id===p.id);if(!d)bad("Không tìm thấy khoản nợ");
-      if(d.saleId)bad("Khoản nợ này sinh từ đơn bán hàng. Hãy chỉnh/xóa đơn thay vì sửa trực tiếp khoản nợ.");
-      const amount=money(p.amount);if(amount<(+d.paid||0))bad("Tổng nợ không thể thấp hơn đã trả");
+      const amount=d.saleId?(+d.amount||0):money(p.amount);if(amount<(+d.paid||0))bad("Tổng nợ không thể thấp hơn đã trả");
       d.amount=amount;d.balance=amount-(+d.paid||0);d.note=String(p.note||"");if(p.createdAt)d.createdAt=p.createdAt;
-      tx(st,action,"Chỉnh khoản nợ");break;
+      tx(st,action,d.saleId?"Chỉnh ngày/ghi chú khoản nợ từ đơn bán hàng":"Chỉnh khoản nợ");break;
     }
     case "debt.delete": {
       const i=st.debts.findIndex(d=>d.id===p.id);if(i<0)bad("Không tìm thấy khoản nợ");
@@ -321,13 +329,13 @@ function applyAction(root,action,p){
       const old=money(pay.amount),next=money(p.amount),newPaid=(+d.paid||0)-old+next;
       if(newPaid>d.amount)bad("Tổng tiền đã trả không thể lớn hơn khoản nợ");
       pay.amount=next;pay.note=String(p.note||"");if(p.createdAt)pay.createdAt=p.createdAt;
-      d.paid=newPaid;d.balance=d.amount-newPaid;tx(st,action,"Chỉnh chi tiết lần trả nợ");break;
+      d.paid=newPaid;d.balance=d.amount-newPaid;rebuildDebtCashEntries(st);tx(st,action,"Chỉnh chi tiết lần trả nợ");break;
     }
     case "debt.payment.delete": {
       const d=st.debts.find(d=>d.id===p.debtId);if(!d)bad("Không tìm thấy khoản nợ");
       const i=(d.payments||[]).findIndex(x=>x.id===p.paymentId);if(i<0)bad("Không tìm thấy lần trả");
       const removed=d.payments.splice(i,1)[0];
-      d.paid=Math.max(0,(+d.paid||0)-(+removed.amount||0));d.balance=d.amount-d.paid;
+      d.paid=Math.max(0,(+d.paid||0)-(+removed.amount||0));d.balance=d.amount-d.paid;rebuildDebtCashEntries(st);
       tx(st,action,"Xóa chi tiết lần trả nợ");break;
     }
 
