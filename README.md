@@ -1,37 +1,41 @@
-# Cantin Nova 1.0
+# Cantin Nova 2.0
 
-App được dựng mới hoàn toàn về giao diện/frontend từ cấu trúc và schema dữ liệu của Cantin AI Next v4.13.0.
+Ứng dụng quản lý căn tin: bán hàng, công nợ, kho, thu/chi, nhà cung cấp, đối soát ca và báo cáo.
 
-## Tương thích dữ liệu
-Giữ đúng schema Supabase:
-- products
-- ingredients
-- customers
-- debts
-- sales
-- stockReceipts
-- audits
-- transactions
-- snapshots
-- aliases
-- nhiều cửa hàng
+## Nâng cấp chính v2.0
 
-Giữ RPC:
-- cantin_read_store_public()
-- cantin_write_store_public(p_data jsonb)
+- Dashboard: doanh số, thực thu, chi, lợi nhuận, dòng tiền ròng, nợ khách, nợ nhà cung cấp, giá trị tồn kho.
+- Bán hàng: giảm giá theo tiền/%; thanh toán hỗn hợp tiền mặt + chuyển khoản + ghi nợ; xem chi tiết và xóa đơn hoàn kho.
+- Công nợ khách: chọn khoản nợ khi thanh toán; tự phân bổ nếu không chọn; ghi nhận thu nợ vào dòng tiền.
+- Nhà cung cấp: danh sách NCC, nợ NCC và trả nợ NCC.
+- Nhập kho: giá nhập, tổng tiền, số đã trả/còn nợ, phương thức thanh toán; cập nhật giá vốn bình quân.
+- Thu/Chi: ghi thu/chi thủ công; các khoản tự động liên kết chứng từ gốc để tránh ghi trùng.
+- Đối soát ca/két tiền: tiền đầu ca, tiền hệ thống, tiền thực tế và chênh lệch.
+- Báo cáo theo khoảng thời gian.
+- Giữ tương thích dữ liệu cũ; schema mới được bổ sung theo hướng tương thích ngược.
 
-## Các màn hình
-- Tổng quan
-- Bán hàng
-- Công nợ + backup/upload file nợ
-- Kho: Kiểm kho + Nhập kho
-- Mặt hàng
-- Khác: Nguyên liệu, AI, Dữ liệu, Nhật ký
+## Cấu trúc
+
+- `public/` — frontend tĩnh
+- `functions/api/[[path]].js` — API/backend engine
+- `tests/static.mjs` — kiểm tra tĩnh
 
 ## Cloudflare Pages
-- Framework preset: None
+
+- Framework preset: `None`
 - Build command: để trống
-- Build output directory: public
+- Build output directory: `public`
 - Root directory: để trống
 
-Backend giữ engine/action tương thích v4.13 để đọc dữ liệu cũ, nhưng frontend được viết lại.
+## Supabase
+
+Ứng dụng tiếp tục dùng RPC:
+
+- `cantin_read_store_public()`
+- `cantin_write_store_public(p_data jsonb)`
+
+Dữ liệu cũ được chuẩn hóa khi đọc để bổ sung các collection/config mới mà không cần xóa dữ liệu hiện có.
+
+## Đưa lên GitHub
+
+Giải nén ZIP, sau đó upload toàn bộ **nội dung bên trong thư mục** lên root repository để các thư mục `public`, `functions`, `tests` và file `README.md` nằm ngay cấp đầu tiên.
