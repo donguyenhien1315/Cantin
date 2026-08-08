@@ -4,14 +4,15 @@
 
 ## Nâng cấp chính v2.0
 
-- Dashboard: doanh số, thực thu, chi, lợi nhuận, dòng tiền ròng, nợ khách, nợ nhà cung cấp, giá trị tồn kho.
+- Dashboard gọn: doanh số, thu, chi, công nợ, nợ nhà cung cấp, giá trị tồn kho.
 - Bán hàng: giảm giá theo tiền/%; thanh toán hỗn hợp tiền mặt + chuyển khoản + ghi nợ; xem chi tiết và xóa đơn hoàn kho.
 - Công nợ khách: chọn khoản nợ khi thanh toán; tự phân bổ nếu không chọn; ghi nhận thu nợ vào dòng tiền.
 - Nhà cung cấp: danh sách NCC, nợ NCC và trả nợ NCC.
 - Nhập kho: giá nhập, tổng tiền, số đã trả/còn nợ, phương thức thanh toán; cập nhật giá vốn bình quân.
 - Thu/Chi: ghi thu/chi thủ công; các khoản tự động liên kết chứng từ gốc để tránh ghi trùng.
 - Đối soát ca/két tiền: tiền đầu ca, tiền hệ thống, tiền thực tế và chênh lệch.
-- Báo cáo theo khoảng thời gian.
+- Công nợ: lọc A–Z/Z–A, đã trả/còn nợ/tất cả, khoảng ngày; sửa chi tiết khoản nợ và lịch sử trả nợ.
+- Trả nợ nhanh: tự điền tổng nợ; nhập `10` hoặc `10k` được hiểu là `10.000`.
 - Giữ tương thích dữ liệu cũ; schema mới được bổ sung theo hướng tương thích ngược.
 
 ## Cấu trúc
