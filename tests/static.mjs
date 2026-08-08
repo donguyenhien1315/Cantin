@@ -1,0 +1,10 @@
+import fs from "node:fs";import assert from "node:assert/strict";
+const html=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
+const js=fs.readFileSync(new URL("../public/js/app.js",import.meta.url),"utf8");
+const api=fs.readFileSync(new URL("../functions/api/[[path]].js",import.meta.url),"utf8");
+assert.match(html,/CANTIN NOVA 1\.0/);
+assert.equal((html.match(/class="nav/g)||[]).length,6);
+for(const x of ["dashboard","sales","debts","warehouse","catalog","more"])assert.match(html,new RegExp(`data-page="${x}"`));
+assert.match(js,/downloadDebtBackup/);assert.match(js,/uploadDebtBackup/);
+assert.match(api,/case "sale\.create"/);assert.match(api,/case "debt\.backup\.import"/);assert.match(api,/case "stockin\.create"/);
+console.log("PASS Cantin Nova static");

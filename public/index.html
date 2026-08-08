@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>Cantin Nova</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="boot" class="boot">Đang đồng bộ dữ liệu…</div>
+
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">CANTIN NOVA 1.0</div>
+      <h1 id="storeName">Cửa hàng</h1>
+    </div>
+    <div class="top-actions">
+      <select id="storeSelect" aria-label="Cửa hàng"></select>
+      <button id="syncBtn" class="icon-btn" title="Đồng bộ">↻</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page active" data-page="dashboard">
+      <div class="page-title"><div><span class="eyebrow">HÔM NAY</span><h2>Tổng quan</h2></div></div>
+      <div class="stats">
+        <button class="stat jump" data-page-target="sales"><span>Doanh thu</span><strong id="todayRevenue">0 ₫</strong></button>
+        <button class="stat jump" data-page-target="sales"><span>Lợi nhuận</span><strong id="todayProfit">0 ₫</strong></button>
+        <button class="stat jump" data-page-target="debts"><span>Công nợ</span><strong id="totalDebt">0 ₫</strong></button>
+        <button class="stat jump" data-page-target="catalog"><span>Sắp hết</span><strong id="lowStock">0</strong></button>
+      </div>
+      <article class="panel">
+        <div class="panel-head"><h3>Cần chú ý</h3><button id="refreshDashboard" class="text-btn">Tính lại</button></div>
+        <div id="alerts" class="list"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><h3>Thao tác gần đây</h3></div>
+        <div id="recentTx" class="list"></div>
+      </article>
+    </section>
+
+    <section class="page" data-page="sales">
+      <div class="page-title"><div><span class="eyebrow">BÁN HÀNG</span><h2>Tạo đơn nhanh</h2></div></div>
+      <article class="panel">
+        <input id="saleSearch" class="search" placeholder="Tìm mặt hàng…">
+        <div id="saleCategories" class="chips"></div>
+        <div id="saleProducts" class="product-grid"></div>
+      </article>
+
+      <article class="panel cart-panel">
+        <div class="panel-head"><h3>Đơn hiện tại</h3><strong id="cartTotal">0 ₫</strong></div>
+        <div id="cart" class="cart"></div>
+        <div class="form-grid">
+          <label>Thanh toán
+            <select id="paymentMethod"><option value="cash">Tiền mặt</option><option value="transfer">Chuyển khoản</option><option value="debt">Ghi nợ</option></select>
+          </label>
+          <label>Khách hàng
+            <select id="saleCustomer"><option value="">Không chọn</option></select>
+          </label>
+          <label class="wide">Ghi chú<input id="saleNote"></label>
+        </div>
+        <button id="saveSale" class="primary full">Lưu đơn hàng</button>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h3>Lịch sử bán hàng</h3></div>
+        <div id="saleHistory" class="list"></div>
+      </article>
+    </section>
+
+    <section class="page" data-page="debts">
+      <div class="page-title"><div><span class="eyebrow">CÔNG NỢ</span><h2 id="debtPageTitle">Khách hàng</h2></div><button id="addCustomer" class="primary small">+ Khách</button></div>
+      <article class="panel debt-tools">
+        <div class="debt-total"><span>Tổng còn nợ</span><strong id="debtTotal">0 ₫</strong></div>
+        <input id="debtSearch" class="search" placeholder="Tìm khách…">
+        <div class="debt-backup-actions">
+          <button id="downloadDebtBackup" class="ghost">Tải backup nợ</button>
+          <label class="file-btn">Upload file nợ<input id="uploadDebtBackup" type="file" accept=".json,.node.json,application/json" hidden></label>
+        </div>
+      </article>
+      <div id="customerList" class="customer-list"></div>
+    </section>
+
+    <section class="page" data-page="warehouse">
+      <div class="page-title"><div><span class="eyebrow">KHO</span><h2>Kiểm kho & nhập kho</h2></div></div>
+      <div class="tabs">
+        <button class="tab active" data-warehouse="audit">Kiểm kho</button>
+        <button class="tab" data-warehouse="stockin">Nhập kho</button>
+      </div>
+
+      <div class="warehouse-view active" data-warehouse-view="audit">
+        <article class="panel">
+          <div id="auditCategories" class="chips"></div>
+          <input id="auditSearch" class="search" placeholder="Tìm mặt hàng…">
+          <div id="auditProducts" class="stock-list"></div>
+          <label>Ghi chú<input id="auditNote"></label>
+          <button id="saveAudit" class="primary full">Lưu kiểm kho</button>
+        </article>
+        <article class="panel"><div class="panel-head"><h3>Lịch sử kiểm kho</h3></div><div id="auditHistory" class="list"></div></article>
+      </div>
+
+      <div class="warehouse-view" data-warehouse-view="stockin">
+        <article class="panel">
+          <div id="stockinCategories" class="chips"></div>
+          <input id="stockinSearch" class="search" placeholder="Tìm mặt hàng…">
+          <div id="stockinProducts" class="stock-list"></div>
+          <label>Ghi chú<input id="stockinNote"></label>
+          <button id="saveStockin" class="primary full">Lưu phiếu nhập</button>
+        </article>
+        <article class="panel"><div class="panel-head"><h3>Lịch sử nhập kho</h3></div><div id="stockinHistory" class="list"></div></article>
+      </div>
+    </section>
+
+    <section class="page" data-page="catalog">
+      <div class="page-title"><div><span class="eyebrow">MẶT HÀNG</span><h2>Quản lý sản phẩm</h2></div><button id="addProduct" class="primary small">+ Mặt hàng</button></div>
+      <article class="panel">
+        <input id="productSearch" class="search" placeholder="Tìm mặt hàng…">
+        <div id="productCategories" class="chips"></div>
+        <div id="productSummary" class="summary-row"></div>
+        <div id="productList" class="list"></div>
+      </article>
+    </section>
+
+    <section class="page" data-page="more">
+      <div class="page-title"><div><span class="eyebrow">CÔNG CỤ</span><h2>Khác</h2></div></div>
+      <div class="more-grid">
+        <button class="more-card" data-more-target="ingredients"><strong>Nguyên liệu</strong><span>Quản lý nguyên liệu cà phê</span></button>
+        <button class="more-card" data-more-target="assistant"><strong>AI</strong><span>Hỏi dữ liệu và lập kế hoạch</span></button>
+        <button class="more-card" data-more-target="data"><strong>Dữ liệu</strong><span>Backup, import và cửa hàng</span></button>
+        <button class="more-card" data-more-target="activity"><strong>Nhật ký</strong><span>Giao dịch gần đây</span></button>
+      </div>
+
+      <div class="more-section hidden" data-more-section="ingredients">
+        <div class="section-back"><button class="ghost back-more">← Khác</button><h3>Nguyên liệu</h3><button id="addIngredient" class="primary small">+ Thêm</button></div>
+        <div id="ingredientList" class="list"></div>
+      </div>
+
+      <div class="more-section hidden" data-more-section="assistant">
+        <div class="section-back"><button class="ghost back-more">← Khác</button><h3>Trợ lý AI</h3></div>
+        <article class="panel">
+          <textarea id="aiInput" rows="4" placeholder="Ví dụ: Rockstar bán hết; Đang còn nợ bao nhiêu?"></textarea>
+          <button id="askAI" class="primary full">Gửi</button>
+          <div id="aiResult" class="ai-result"></div>
+        </article>
+      </div>
+
+      <div class="more-section hidden" data-more-section="data">
+        <div class="section-back"><button class="ghost back-more">← Khác</button><h3>Dữ liệu</h3></div>
+        <article class="panel">
+          <div class="data-actions">
+            <button id="exportStore" class="ghost">Tải backup cửa hàng</button>
+            <label class="file-btn">Nhập backup cửa hàng<input id="importStore" type="file" accept=".json,.node.json,application/json" hidden></label>
+            <button id="newStore" class="ghost">+ Cửa hàng mới</button>
+          </div>
+          <p class="hint">Backup cửa hàng chứa toàn bộ dữ liệu của cửa hàng đang chọn.</p>
+        </article>
+      </div>
+
+      <div class="more-section hidden" data-more-section="activity">
+        <div class="section-back"><button class="ghost back-more">← Khác</button><h3>Nhật ký</h3></div>
+        <div id="activityList" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav active" data-target="dashboard">Tổng quan</button>
+    <button class="nav" data-target="sales">Bán hàng</button>
+    <button class="nav" data-target="debts">Công nợ</button>
+    <button class="nav" data-target="warehouse">Kho</button>
+    <button class="nav" data-target="catalog">Mặt hàng</button>
+    <button class="nav" data-target="more">Khác</button>
+  </nav>
+
+  <div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="modal-close">×</button><div id="modalBody"></div></div></div>
+  <div id="toast" class="toast"></div>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
