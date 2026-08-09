@@ -30,3 +30,47 @@ button:active,.product-card:active,.more-card:active{transform:scale(.975)}
 
 /* Audit v2.5 */
 .audit-stock-row{grid-template-columns:minmax(190px,1fr) 105px 150px}.audit-product-info small{line-height:1.4}.audit-baseline{color:#9a6700!important}.audit-row-result{grid-column:1/-1;padding-top:2px}.audit-detail-list{margin:12px 0}.audit-detail-row{display:grid;grid-template-columns:minmax(160px,1fr) 90px 160px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #edf3f1}.audit-history-money{grid-template-columns:repeat(4,1fr)}.audit-history-actions{gap:6px}.audit-metrics.compact{margin:10px 0}@media(max-width:760px){.audit-stock-row{grid-template-columns:1fr 90px}.audit-stock-row label:nth-of-type(2){grid-column:1/-1}.audit-detail-row{grid-template-columns:1fr}.audit-history-money{grid-template-columns:1fr 1fr}}
+.audit-close-result .notice{margin:12px 0 16px;padding:14px 16px;border-radius:14px;background:rgba(22,163,74,.08);line-height:1.55}.audit-close-result .notice strong{display:inline-block;margin-bottom:4px}
+
+/* v2.7.2: Prevent iOS Safari from auto-zooming form controls on focus. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (max-width:760px){
+  input,select,textarea{font-size:16px!important;line-height:1.25}
+}
+
+/* v2.7.3: UI consistency polish */
+body{font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,strong{line-height:1.25}.stat strong,.total-line strong,.debt-total strong,.audit-metric strong,.audit-history-money strong{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+button,input,select,textarea{min-height:40px}.small{min-height:34px}.icon-btn{height:40px;min-height:40px;padding:0}.modal-close{min-height:34px}
+.panel-head,.page-title,.section-back{min-width:0}.panel-head>*,.page-title>*,.section-back>*{min-width:0}.panel-head{flex-wrap:wrap}.panel-head h3,.page-title h2{overflow-wrap:anywhere}
+.stats .stat{min-width:0}.stat span{line-height:1.3}.stat strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.customer-head{align-items:center;gap:10px}.customer-head>span:first-child{min-width:0;flex:1}.customer-head>strong,.customer-head>span:last-child{flex:0 0 auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.list-row>div,.cart-row>div,.stock-row>div{min-width:0}.list-row strong,.cart-row strong,.stock-row strong{overflow-wrap:anywhere}.list-row small,.cart-row small,.stock-row small{line-height:1.4}
+.total-line strong{white-space:nowrap}.summary-row{flex-wrap:wrap;justify-content:flex-start}.summary-row span{min-width:0}.summary-cards{scrollbar-width:none}.summary-cards::-webkit-scrollbar,.chips::-webkit-scrollbar,.tabs::-webkit-scrollbar,.bottom-nav::-webkit-scrollbar{display:none}
+.tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}.tab{flex:0 0 auto;min-height:40px;white-space:nowrap}.chip{min-height:36px;display:inline-flex;align-items:center}
+.form-grid label,.filter-grid label,.stock-row label{line-height:1.35}.form-grid input,.form-grid select,.filter-grid input,.filter-grid select,.stock-row input,.stock-row select{height:42px}
+.more-card{min-height:92px;display:flex;flex-direction:column;justify-content:center}.more-card strong{line-height:1.25}.more-card span{line-height:1.4}
+.debt-line{min-width:0}.debt-line>div{min-width:0}.row-actions button{white-space:nowrap}.payment-row strong{font-variant-numeric:tabular-nums}
+.audit-history-top>div{min-width:0}.audit-history-top>strong{white-space:nowrap;font-variant-numeric:tabular-nums}.audit-history-money span{min-width:0}.audit-history-money strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sale-dock>div{min-width:0}.sale-dock strong,.sale-dock span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sale-dock button{flex:0 0 auto}
+.top-actions{min-width:0}.top-actions select{height:40px;min-width:0;text-overflow:ellipsis}
+.bottom-nav{align-items:stretch}.nav{min-height:48px;line-height:1.15;display:flex;align-items:center;justify-content:center;text-align:center}
+@media(max-width:760px){
+  body{font-size:14px}.topbar{gap:10px}.topbar>div:first-child{min-width:0}.topbar h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44vw}.top-actions{flex:0 1 54%;justify-content:flex-end}.top-actions select{max-width:calc(100% - 50px)}
+  .panel{padding:14px}.page-title{align-items:flex-start}.page-title h2{font-size:20px}.stats .stat{min-height:78px;display:flex;flex-direction:column;justify-content:center}.stat span{font-size:12px}.stat strong{font-size:16px}
+  .list-row,.cart-row{align-items:flex-start;flex-wrap:wrap}.list-row>button,.cart-row>button{flex:0 0 auto}.list-row>.row-actions{margin-left:auto}
+  .customer-head small{max-width:64vw}.customer-head>strong,.customer-head>span:last-child{font-size:14px}
+  .debt-line{grid-template-columns:minmax(0,1fr) auto}.row-actions{max-width:48%;justify-content:flex-end}
+  .stock-row{gap:8px}.stock-row input,.stock-row select{min-width:0;width:100%}
+  .audit-history-top{align-items:flex-start}.audit-history-money span{padding:9px}.audit-history-money strong{font-size:14px}
+  .sale-dock{gap:8px}.sale-dock button{min-width:118px}.sale-dock strong{font-size:13px}
+  .bottom-nav{padding-left:4px;padding-right:4px}.nav{font-size:11px;padding:7px 2px}
+}
+@media(max-width:420px){
+  main{padding:10px}.panel{padding:12px;border-radius:16px}.topbar{padding:10px}.topbar h1{max-width:39vw}.top-actions{flex-basis:58%}
+  .stats,.stats.six{gap:6px}.stat{padding:10px}.stat strong{font-size:15px}.product-card{padding:11px;min-height:76px}
+  .form-grid,.filter-grid{gap:8px}.customer-head{padding:12px}.customer-head small{max-width:58vw}.row-actions{max-width:56%;gap:4px}.row-actions .small{padding-left:8px;padding-right:8px}
+  .audit-metrics{gap:7px}.audit-metric{padding:10px}.audit-history-money{gap:6px}.audit-history-money span{padding:8px 7px}
+  .sale-dock{width:calc(100% - 16px);padding:9px 10px}.sale-dock button{min-width:108px;padding-left:10px;padding-right:10px}
+  .nav{font-size:10.5px}
+}
