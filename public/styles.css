@@ -100,3 +100,14 @@ button,input,select,textarea{min-height:40px}.small{min-height:34px}.icon-btn{he
 .stepper-arrows button{border:1px solid #cfe0dc;background:#edf5f3;color:#24534e;border-radius:6px;padding:0;min-width:30px;font-size:10px;line-height:1}
 .stepper-arrows button:active{background:#d8ebe7;transform:scale(.96)}
 @media(max-width:420px){.product-inline-qty{grid-template-columns:36px 1fr 36px 36px}.product-qty-btn{height:34px}.number-stepper{grid-template-columns:minmax(0,1fr) 29px}.stepper-arrows button{min-width:29px}}
+
+
+/* v2.7.8 — viewport-fixed audit dock + arrows visually inside number inputs */
+.audit-draft-dock{position:fixed!important;left:50%!important;right:auto!important;bottom:calc(88px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;z-index:55!important;isolation:isolate}
+.number-stepper{position:relative!important;display:block!important;margin-top:4px!important}
+.number-stepper input{width:100%!important;height:42px!important;margin-top:0!important;padding-right:36px!important;border-radius:10px!important}
+.stepper-arrows{position:absolute!important;top:1px!important;right:1px!important;bottom:1px!important;width:32px!important;display:grid!important;grid-template-rows:1fr 1fr!important;gap:0!important;overflow:hidden!important;border-left:1px solid #cfe0dc!important;border-radius:0 9px 9px 0!important;background:#f5faf9!important}
+.stepper-arrows button{min-width:0!important;width:100%!important;height:auto!important;border:0!important;border-radius:0!important;background:transparent!important;color:#24534e!important;font-size:9px!important;line-height:1!important;padding:0!important}
+.stepper-arrows button:first-child{border-bottom:1px solid #dbe8e5!important}
+.stepper-arrows button:active{background:#d8ebe7!important;transform:none!important}
+@media(max-width:520px){.audit-draft-dock{bottom:calc(82px + env(safe-area-inset-bottom))!important}.number-stepper input{padding-right:35px!important}.stepper-arrows{width:31px!important}}
