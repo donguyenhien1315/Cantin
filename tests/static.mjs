@@ -11,3 +11,5 @@ for(const x of ["exportStore","exportExcel","exportZip","importStore","addCashEn
 for(const x of ["sale.create","debt.update","debt.payment.update","debt.payment.delete","stockin.create","cash.entry.create","supplier.create","supplier.pay","cash.session.close"])assert.match(api,new RegExp(`case "${x.replaceAll('.', '\\.')}`));
 assert.match(api,/rebuildDebtCashEntries/);assert.match(api,/version:"2\.0\.0"/);assert.match(api,/cashEntries/);assert.match(api,/supplierDebts/);
 console.log("PASS Cantin Nova 2.0 static - simplified nav + debt filters/editing");
+assert.match(js,/Giá nhập\/thùng/);assert.match(js,/stockinLineCalc/);assert.match(js,/moneyInput\(r\.querySelector\('\.caseCost'\)\.value\)/);
+assert.match(api,/caseCost/);assert.match(api,/cases\*caseCost\+units\*unitCost/);

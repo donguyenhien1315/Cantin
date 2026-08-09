@@ -406,9 +406,13 @@ function applyAction(root,action,p){
 
     case "stockin.create": {
       const lines=[];let totalCost=0;
-      for(const r of p.lines||[]){const pr=st.products.find(x=>x.id===r.productId);if(!pr)continue;const amount=qty(r.cases)*(qty(pr.packSize)||1)+qty(r.units);if(!amount)continue;const before=qty(pr.stock),unitCost=money(r.unitCost??pr.costPrice),lineCost=money(r.lineCost||unitCost*amount);pr.stock=before+amount;
+      for(const r of p.lines||[]){const pr=st.products.find(x=>x.id===r.productId);if(!pr)continue;const pack=Math.max(1,qty(pr.packSize)||1),cases=qty(r.cases),units=qty(r.units),amount=cases*pack+units;if(!amount)continue;const before=qty(pr.stock);
+        // v2.0.1: caseCost là giá của cả thùng. unitCost luôn là giá của 1 đơn vị lẻ.
+        // Giữ tương thích phiếu cũ chỉ gửi unitCost.
+        const suppliedCaseCost=money(r.caseCost),legacyUnitCost=money(r.unitCost??pr.costPrice),caseCost=suppliedCaseCost>0?suppliedCaseCost:legacyUnitCost*pack,unitCost=caseCost/pack;
+        const calculatedLineCost=Math.round(cases*caseCost+units*unitCost),lineCost=calculatedLineCost;pr.stock=before+amount;
         if(unitCost>0){const oldValue=(+pr.costPrice||0)*before;pr.costPrice=Math.round((oldValue+lineCost)/Math.max(1,before+amount))}
-        totalCost+=lineCost;lines.push({productId:pr.id,name:pr.name,cases:qty(r.cases),units:qty(r.units),quantity:amount,unitCost,lineCost,before,after:pr.stock})}
+        totalCost+=lineCost;lines.push({productId:pr.id,name:pr.name,cases,units,quantity:amount,caseCost,unitCost,lineCost,before,after:pr.stock})}
       if(!lines.length)bad("Phiếu nhập trống");
       const supplier=p.supplierId?(st.suppliers||[]).find(x=>x.id===p.supplierId):null,paid=Math.min(money(p.paidAmount??totalCost),totalCost),debtAmount=totalCost-paid,receiptId=uid(),createdAt=p.createdAt||now();
       st.stockReceipts.push({id:receiptId,createdAt,note:String(p.note||""),supplierId:supplier?.id||"",supplier:supplier?.name||"",totalCost,paidAmount:paid,debtAmount,paymentMethod:String(p.paymentMethod||"cash"),lines});
