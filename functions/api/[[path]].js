@@ -171,6 +171,19 @@ function parseAmountAfter(text,keywords){
 }
 function paymentAmountFromMessage(text){return parseAmountAfter(text,["trả nợ","tra no","trả","tra"]).amount}
 function debtAmountFromClause(text){return parseAmountAfter(text,["ghi nợ","ghi no","nợ","no"]).amount}
+function debtNoteFromClause(text){
+  const raw=String(text||"").trim();
+  const m=raw.match(/(?:^|\s)(?:ghi\s*nợ|ghi\s*no|nợ|no)(?=\s|$)/i);
+  if(!m)return "";
+  const after=raw.slice((m.index||0)+m[0].length).trim();
+  const amount=after.match(/^(?:[:=\-]?\s*)?(\d+(?:[.,]\d+)?)\s*(k|nghin|nghìn|ngàn|ngan|tr|triệu|trieu)?\b/i);
+  if(!amount)return "";
+  let note=after.slice(amount[0].length).trim();
+  // Ngày tháng là metadata của khoản nợ, không phải ghi chú.
+  note=note.replace(/(?:,?\s*(?:ngày|ngay)\s*\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)/ig,"");
+  note=note.replace(/^[,;:\-–—\s]+|[,;:\-–—\s]+$/g,"").trim();
+  return note;
+}
 function lastSale(st,customerId=""){return [...(st.sales||[])].filter(s=>!customerId||s.customerId===customerId).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))[0]||null}
 function saleItemsPayload(s){return (s?.items||[]).map(l=>({productId:l.productId,quantity:+l.quantity||0}))}
 function linkedDebtForSale(st,saleId){return st.debts.find(d=>d.saleId===saleId)||null}
@@ -478,7 +491,7 @@ function applyAction(root,action,p){
     case "cash.session.close": {const x={id:uid(),createdAt:p.createdAt||now(),openingCash:money(p.openingCash),expectedCash:money(p.expectedCash),actualCash:money(p.actualCash),difference:Math.round((Number(p.actualCash)||0)-(Number(p.expectedCash)||0)),note:String(p.note||"")};st.cashSessions.push(x);tx(st,action,`Đóng ca · lệch ${formatMoney(Math.abs(x.difference))}`);break;}
     case "audit.create": {
       const lines=[],createdAt=p.createdAt||now(),periodKey=String(p.periodKey||defaultAuditPeriodKey(createdAt)),defaultType=String(p.defaultReconcileType||"unclassified");
-      for(const r of p.lines||[]){const pr=st.products.find(x=>x.id===r.productId);if(!pr)continue;const systemBefore=qty(pr.stock),hasPrevious=(st.audits||[]).some(a=>new Date(a.createdAt)<new Date(createdAt)&&(a.lines||[]).some(l=>l.productId===pr.id)),before=hasPrevious&&Number.isFinite(Number(r.expectedBefore))?qty(r.expectedBefore):systemBefore,actual=qty(r.actual),delta=actual-before;pr.stock=actual;lines.push({productId:pr.id,name:pr.name,before,systemBefore,actual,delta,sold:Math.max(0,before-actual),baseline:!hasPrevious,reconcileType:!hasPrevious?"baseline":String(r.reconcileType||defaultType),salePriceSnapshot:+pr.salePrice||0,costPriceSnapshot:+pr.costPrice||0})}
+      for(const r of p.lines||[]){const pr=st.products.find(x=>x.id===r.productId);if(!pr)continue;const systemBefore=qty(pr.stock),hasPrevious=(st.audits||[]).some(a=>new Date(a.createdAt)<new Date(createdAt)&&(a.lines||[]).some(l=>l.productId===pr.id)),hasExpected=Number.isFinite(Number(r.expectedBefore)),before=hasExpected?qty(r.expectedBefore):systemBefore,actual=qty(r.actual),delta=actual-before;pr.stock=actual;lines.push({productId:pr.id,name:pr.name,before,systemBefore,actual,delta,sold:Math.max(0,before-actual),baseline:false,autoBaseline:!hasPrevious&&!!r.autoBaseline,reconcileType:String(r.reconcileType||defaultType),salePriceSnapshot:+pr.salePrice||0,costPriceSnapshot:+pr.costPrice||0})}
       if(!lines.length)bad("Phiếu kiểm kho trống");
       st.audits.push({id:uid(),createdAt,periodKey,revenuePeriodEnabled:true,periodStart:String(p.periodStart||""),periodEnd:String(p.periodEnd||""),periodStartAt:String(p.periodStartAt||""),periodEndAt:String(p.periodEndAt||""),periodLabel:String(p.periodLabel||""),summarySnapshot:p.summarySnapshot&&typeof p.summarySnapshot==="object"?{...p.summarySnapshot}:null,note:String(p.note||""),lines});
       tx(st,action,`Kiểm kho ${lines.length} mặt hàng · kỳ ${periodKey}`);break;
@@ -900,7 +913,7 @@ function parseDebtBatch(st,msg,context={}){
   let customer=findCustomer(st,q,context.customerId);
   if(!customer){
     // Try only the prefix before first debt keyword as customer name.
-    const prefix=q.split(/\b(?:nợ|no|ghi nợ|ghi no)\b/i)[0].trim();
+    const prefix=q.split(/(?:^|\s)(?:ghi\s*nợ|ghi\s*no|nợ|no)(?=\s|$)/i)[0].trim();
     if(prefix)customer=findCustomer(st,prefix,context.customerId);
   }
   if(!customer)return null;
@@ -908,7 +921,7 @@ function parseDebtBatch(st,msg,context={}){
   const parsed=[];
   for(const clause0 of clauses){
     let clause=clause0;
-    if(!/\b(nợ|no|ghi nợ|ghi no)\b/i.test(clause))continue;
+    if(!/(?:^|\s)(?:ghi\s*nợ|ghi\s*no|nợ|no)(?=\s|$)/i.test(clause))continue;
 
     const cash={amount:debtAmountFromClause(clause),ambiguous:false};
     if(!cash.amount)continue;
@@ -928,7 +941,7 @@ function parseDebtBatch(st,msg,context={}){
       productId:product?.id||"",
       productName:product?.name||"",
       raw:clause,
-      note:clause
+      note:debtNoteFromClause(clause)
     });
   }
   if(!parsed.length)return null;
@@ -1075,13 +1088,14 @@ ${debtBatchSummary(debtBatch)}`,
     const c={amount:debtAmountFromClause(msg),ambiguous:false};if(c.amount){
       if(c.ambiguous)return {type:"clarify",question:`Anh muốn ghi nợ ${formatMoney(c.amount)} cho ${cu.name} đúng không?`,choices:[{label:`Đúng, ${formatMoney(c.amount)}`,message:`${cu.name} ghi nợ ${c.amount}đ ${msg}`},{label:"Nhập lại",message:`${cu.name} ghi nợ `}],context:{...context,customerId:cu.id}};
       const createdAt=parseVietnameseDate(msg)||now();
+      const debtNote=debtNoteFromClause(msg);
       const qm=msg.match(/(\d+(?:[.,]\d+)?)\s*(c|cái|cai|chai|lon|ly|gói|goi)\b/i);
       const quantity=qm?Number(qm[1].replace(",",".")):0;
       const product=explicitDebtProduct(st,msg);
       if(product&&quantity>0){
-        return {type:"plan",summary:`Tạo đơn nợ ${cu.name}: ${quantity} ${product.name} · ${formatMoney(c.amount)} · ${new Date(createdAt).toLocaleDateString("vi-VN")}`,plan:{kind:"debt.batch",customerId:cu.id,items:[{amount:c.amount,createdAt,quantity,productId:product.id,note:msg}]},context:{...context,customerId:cu.id,productId:product.id,resolvedProductId:""}}
+        return {type:"plan",summary:`Tạo đơn nợ ${cu.name}: ${quantity} ${product.name} · ${formatMoney(c.amount)} · ${new Date(createdAt).toLocaleDateString("vi-VN")}`,plan:{kind:"debt.batch",customerId:cu.id,items:[{amount:c.amount,createdAt,quantity,productId:product.id,note:debtNote||msg}]},context:{...context,customerId:cu.id,productId:product.id,resolvedProductId:""}}
       }
-      return {type:"plan",summary:`Ghi nợ ${cu.name}: ${formatMoney(c.amount)} · ${new Date(createdAt).toLocaleDateString("vi-VN")} · ghi chú: ${msg}`,plan:{kind:"debt.add",customerId:cu.id,amount:c.amount,note:msg,createdAt},context:{...context,customerId:cu.id}}
+      return {type:"plan",summary:`Ghi nợ ${cu.name}: ${formatMoney(c.amount)} · ${new Date(createdAt).toLocaleDateString("vi-VN")}${debtNote?` · ghi chú: ${debtNote}`:""}`,plan:{kind:"debt.add",customerId:cu.id,amount:c.amount,note:debtNote,createdAt},context:{...context,customerId:cu.id}}
     }
   }
   if(cu&&(q.includes("tra ")||q.includes("trả ")||q.includes("tra no")||q.includes("trả nợ"))){
