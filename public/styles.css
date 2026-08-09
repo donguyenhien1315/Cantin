@@ -74,3 +74,7 @@ button,input,select,textarea{min-height:40px}.small{min-height:34px}.icon-btn{he
   .sale-dock{width:calc(100% - 16px);padding:9px 10px}.sale-dock button{min-width:108px;padding-left:10px;padding-right:10px}
   .nav{font-size:10.5px}
 }
+
+
+/* v2.7.4: auto audit baseline + quick page scroll */
+.audit-auto-opening{color:var(--pri)!important;font-weight:600}.audit-close-preview .notice{margin:12px 0;padding:12px 14px;border-radius:12px;background:#f2f8f6;color:#45635f;line-height:1.45}.modal-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:8px;margin-top:14px}.scroll-controls{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:88px;z-index:32;display:flex;flex-direction:column;gap:8px}.scroll-fab{width:42px;height:42px;min-height:42px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.94);color:var(--pri);font-size:20px;font-weight:800;box-shadow:0 8px 24px rgba(16,42,42,.15);backdrop-filter:blur(12px);padding:0;transition:transform .16s var(--ease),opacity .16s ease}.scroll-fab:active{transform:scale(.92)}.scroll-fab.muted{opacity:.35}.scroll-controls.hidden{display:none!important}@media(max-width:760px){.scroll-controls{bottom:88px;right:10px}.scroll-fab{width:40px;height:40px;min-height:40px}.sale-dock:not(.hidden)~.bottom-nav{} }
