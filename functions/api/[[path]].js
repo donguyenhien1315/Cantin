@@ -473,14 +473,14 @@ function applyAction(root,action,p){
       const lines=[],createdAt=p.createdAt||now(),periodKey=String(p.periodKey||defaultAuditPeriodKey(createdAt)),defaultType=String(p.defaultReconcileType||"unclassified");
       for(const r of p.lines||[]){const pr=st.products.find(x=>x.id===r.productId);if(!pr)continue;const before=qty(pr.stock),actual=qty(r.actual),delta=actual-before;pr.stock=actual;lines.push({productId:pr.id,name:pr.name,before,actual,delta,sold:Math.max(0,before-actual),reconcileType:String(r.reconcileType||defaultType),salePriceSnapshot:+pr.salePrice||0,costPriceSnapshot:+pr.costPrice||0})}
       if(!lines.length)bad("Phiếu kiểm kho trống");
-      st.audits.push({id:uid(),createdAt,periodKey,revenuePeriodEnabled:true,note:String(p.note||""),lines});
+      st.audits.push({id:uid(),createdAt,periodKey,revenuePeriodEnabled:true,periodStart:String(p.periodStart||""),periodEnd:String(p.periodEnd||""),periodLabel:String(p.periodLabel||""),note:String(p.note||""),lines});
       tx(st,action,`Kiểm kho ${lines.length} mặt hàng · kỳ ${periodKey}`);break;
     }
     case "audit.update": {
       const a=st.audits.find(a=>a.id===p.id);if(!a)bad("Không tìm thấy đơn kiểm kho");
       const requested=new Map((p.lines||[]).map(r=>[r.productId,{actual:qty(r.actual),reconcileType:r.reconcileType}]));
       for(const old of a.lines||[]){if(!requested.has(old.productId))continue;const pr=st.products.find(x=>x.id===old.productId);if(!pr)continue;const req=requested.get(old.productId),next=req.actual,prev=qty(old.actual),correction=next-prev;pr.stock=qty(pr.stock)+correction;old.actual=next;old.delta=next-qty(old.before);old.sold=Math.max(0,qty(old.before)-next);if(req.reconcileType)old.reconcileType=String(req.reconcileType);if(old.salePriceSnapshot===undefined)old.salePriceSnapshot=+pr.salePrice||0;if(old.costPriceSnapshot===undefined)old.costPriceSnapshot=+pr.costPrice||0}
-      if(p.periodKey!==undefined)a.periodKey=String(p.periodKey||"");a.revenuePeriodEnabled=true;a.note=String(p.note||"");tx(st,action,`Chỉnh đơn kiểm kho theo chênh lệch · kỳ ${a.periodKey||"chưa gán"}`);break;
+      if(p.periodKey!==undefined)a.periodKey=String(p.periodKey||"");if(p.periodStart!==undefined)a.periodStart=String(p.periodStart||"");if(p.periodEnd!==undefined)a.periodEnd=String(p.periodEnd||"");if(p.periodLabel!==undefined)a.periodLabel=String(p.periodLabel||"");a.revenuePeriodEnabled=true;a.note=String(p.note||"");tx(st,action,`Chỉnh đơn kiểm kho theo chênh lệch · kỳ ${a.periodKey||"chưa gán"}`);break;
     }
     case "business.reset.keep_debts": {
       const salesCount=(st.sales||[]).length,auditCount=(st.audits||[]).length;
