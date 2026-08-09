@@ -26,6 +26,8 @@ function haptic(ms=12){try{if(navigator.vibrate)navigator.vibrate(ms)}catch{}}
 function toast(msg,error=false){const t=$("#toast");t.textContent=msg;t.className="toast show"+(error?" error":"");clearTimeout(t._x);t._x=setTimeout(()=>t.className="toast",2600);if(!error)haptic(10)}
 function modal(html){$("#modalBody").innerHTML=html;$("#modal").classList.remove("hidden");requestAnimationFrame(()=>$("#modal").classList.add("open"))}function closeModal(){$("#modal").classList.remove("open");setTimeout(()=>$("#modal").classList.add("hidden"),180)}
 $("#closeModal").onclick=closeModal;$("#modal").onclick=e=>{if(e.target.id==="modal")closeModal()};
+// Keep audit draft dock outside animated page containers so position:fixed stays viewport-fixed on iOS/Safari.
+const auditDraftDockPortal=$("#auditDraftDock");if(auditDraftDockPortal&&auditDraftDockPortal.parentElement!==document.body)document.body.appendChild(auditDraftDockPortal);
 function navigate(page){$$('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$$('.nav').forEach(x=>x.classList.toggle('active',x.dataset.target===page));if(page==='more')showMoreHome();if(page==='cashflow')renderCashflow();updateSaleDock(page);haptic(8);window.scrollTo({top:0,behavior:'smooth'})}
 $$('.nav').forEach(b=>b.onclick=()=>navigate(b.dataset.target));$$('.jump').forEach(b=>b.onclick=()=>navigate(b.dataset.pageTarget));
 function updateScrollControls(){const wrap=$('#scrollControls');if(!wrap)return;const max=Math.max(0,document.documentElement.scrollHeight-window.innerHeight),y=window.scrollY||0;wrap.classList.toggle('hidden',max<360);$('#scrollTopBtn').classList.toggle('muted',y<120);$('#scrollBottomBtn').classList.toggle('muted',max-y<120)}
