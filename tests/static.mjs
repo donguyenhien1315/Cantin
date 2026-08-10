@@ -5,7 +5,7 @@ const pos=fs.readFileSync(new URL("../public/js/pos-enhance.js",import.meta.url)
 const css=fs.readFileSync(new URL("../public/pos-theme.css",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../functions/api/[[path]].js",import.meta.url),"utf8");
 assert.match(html,/CANTIN POS/);
-assert.equal((html.match(/class="nav/g)||[]).length,7);
+assert.equal((html.match(/<button class="nav(?: active)?" data-target=/g)||[]).length,7);
 for(const x of ["dashboard","sales","debts","warehouse","cashflow","reports","catalog","more"])assert.match(html,new RegExp(`data-page="${x}"`));
 for(const x of ["reportRevenue","reportProfit","reportOrders","reportAverageOrder","reportTopProducts","reportPayments","reportStock","reportDebt"])assert.match(html,new RegExp(x));
 for(const x of ["debtSort","debtStatus","debtFrom","debtTo","clearDebtFilters"])assert.match(html,new RegExp(x));
