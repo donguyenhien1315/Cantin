@@ -1,0 +1,28 @@
+name: Cantin POS Quality
+
+on:
+  push:
+    branches: [main, cantin-pos-kiot-inspired]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run static checks
+        run: node tests/static.mjs
+      - name: Check JavaScript syntax
+        run: |
+          node --check public/js/app.js
+          node --check public/js/pos-enhance.js
+          node --check 'functions/api/[[path]].js'
